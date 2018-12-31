@@ -8,8 +8,8 @@ export default class Timer extends PureComponent {
     autobind(this);
 
     const { length } = this.props;
-    const duration = moment.duration(length || '3minutes');
-    this.lengthInMilliseconds = duration.asMilliseconds();
+    this.lengthInMilliseconds = moment.duration(length).asMilliseconds();
+
     this.state = {
       timeLeft: this.lengthInMilliseconds,
       started: false,
@@ -75,5 +75,5 @@ Timer.propTypes = {
 };
 
 Timer.defaultProps = {
-  length: '3minutes',
+  length: { minutes: 3 },
 };

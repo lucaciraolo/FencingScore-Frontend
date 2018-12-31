@@ -27,7 +27,7 @@ class App extends PureComponent {
       <div style={{ display: 'block' }}>
         <Score value={leftScore} onClick={() => this.incrementScore('left')} color="red" />
         <Score value={rightScore} onClick={() => this.incrementScore('right')} color="green" />
-        <Timer length="3minutes" />
+        <Timer length={{ seconds: 1 }} />
       </div>
     );
   }
