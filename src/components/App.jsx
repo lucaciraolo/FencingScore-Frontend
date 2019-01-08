@@ -1,9 +1,12 @@
 import React, { PureComponent } from 'react';
+import socketIOClient from 'socket.io-client';
+// import Grid from '@material-ui/core/Grid';
+// import Paper from '@material-ui/core/Paper';
 
-import Score from './Score';
-import Timer from './Timer';
+import { StyledScore } from './Score';
+import { StyledTimer } from './Timer';
 
-class App extends PureComponent {
+export default class App extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -11,26 +14,36 @@ class App extends PureComponent {
       leftScore: 0,
       rightScore: 0,
     };
+
+    this.socket = socketIOClient('192.168.0.24:3001');
+    this.socket.on('setScore', (data) => {
+      const { side, score } = data;
+      this.setState({ [`${side}Score`]: score });
+    });
   }
 
+
   incrementScore(side) {
-    if (side === 'left') {
-      this.setState(state => ({ leftScore: state.leftScore + 1 }));
-    } else {
-      this.setState(state => ({ rightScore: state.rightScore + 1 }));
-    }
+    if (side !== 'left' && side !== 'right') throw new Error('side must be "left" or "right" when incrementing score');
+    this.setState((state) => {
+      const score = state[`${side}Score`] + 1;
+      this.socket.emit('setScore', { side, score });
+      return { [`${side}Score`]: score };
+    });
   }
 
   render() {
     const { leftScore, rightScore } = this.state;
     return (
-      <div style={{ display: 'block' }}>
-        <Score value={leftScore} onClick={() => this.incrementScore('left')} color="red" />
-        <Score value={rightScore} onClick={() => this.incrementScore('right')} color="green" />
-        <Timer length={{ seconds: 1 }} />
+      <div>
+        <div>
+          <StyledScore value={leftScore} onClick={() => this.incrementScore('left')} color="red" />
+          <StyledScore value={rightScore} onClick={() => this.incrementScore('right')} color="green" />
+        </div>
+        <div>
+          <StyledTimer length={{ minutes: 3 }} socket={this.socket} />
+        </div>
       </div>
     );
   }
 }
-
-export default App;
